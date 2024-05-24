@@ -40,3 +40,21 @@ func GetAllProduct() []Product {
 
 	return products
 }
+
+func InsertProduct(name string, description string, price float64, qtd int) {
+	db := db.InitDB()
+
+	insertData, err := db.Prepare("INSERT INTO produtos (name, description, price, qtd) VALUES ($1, $2, $3, $4)")
+
+	if err != nil {
+		panic(fmt.Sprintf("Error preparing the statement: %v", err))
+	}
+
+	_, err = insertData.Exec(name, description, price, qtd)
+
+	if err != nil {
+		panic(fmt.Sprintf("Error executing the statement: %v", err))
+	}
+
+	defer db.Close()
+}
