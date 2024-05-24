@@ -9,11 +9,17 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Product struct {
+	ID          int
+	Name        string
+	Description string
+	Price       float64
+	Qtd         int
+}
+
 var temp = template.Must(template.ParseGlob("templates/*.html"))
 
 func main() {
-	db := initDB()
-	defer db.Close()
 	http.HandleFunc("/", index)
 	http.ListenAndServe(":8000", nil)
 }
@@ -35,5 +41,28 @@ func initDB() *sql.DB {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	temp.ExecuteTemplate(w, "Index", nil)
+	db := initDB()
+
+	rows, err := db.Query("SELECT * FROM produtos")
+
+	if err != nil {
+		panic(fmt.Sprintf("Error querying the database: %v", err))
+	}
+
+	p := Product{}
+	products := []Product{}
+
+	for rows.Next() {
+		err = rows.Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Qtd)
+
+		if err != nil {
+			panic(fmt.Sprintf("Error scanning the database: %v", err))
+		}
+
+		products = append(products, p)
+	}
+
+	temp.ExecuteTemplate(w, "Index", products)
+
+	defer db.Close()
 }
