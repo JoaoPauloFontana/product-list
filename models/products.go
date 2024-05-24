@@ -58,3 +58,21 @@ func InsertProduct(name string, description string, price float64, qtd int) {
 
 	defer db.Close()
 }
+
+func DeleteProduct(id string) {
+	db := db.InitDB()
+
+	deleteData, err := db.Prepare("DELETE FROM produtos WHERE id = $1")
+
+	if err != nil {
+		panic(fmt.Sprintf("Error preparing the statement: %v", err))
+	}
+
+	_, err = deleteData.Exec(id)
+
+	if err != nil {
+		panic(fmt.Sprintf("Error executing the statement: %v", err))
+	}
+
+	defer db.Close()
+}
