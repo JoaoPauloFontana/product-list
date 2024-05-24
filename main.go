@@ -20,6 +20,8 @@ type Product struct {
 var temp = template.Must(template.ParseGlob("templates/*.html"))
 
 func main() {
+	db := initDB()
+	defer db.Close()
 	http.HandleFunc("/", index)
 	http.ListenAndServe(":8000", nil)
 }
